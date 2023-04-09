@@ -4,6 +4,8 @@ from app.db import Base, TweetSent
 from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.chrome.options import Options
+
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
@@ -19,20 +21,33 @@ dotenv.load_dotenv()
 
 WEBHOOK_URL = os.environ["WEBHOOK_URL"]
 
-db_engine = create_engine("sqlite:///data.db", echo=True)
+db_engine = create_engine(os.environ["POSTGRES_URI"], echo=True)
 session = Session(db_engine)
 Base.metadata.create_all(db_engine)
 
-driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()))
-scraper = TwitterScraper(driver, delay=10)
+def set_chrome_options() -> Options:
+    """Sets chrome options for Selenium.
+    Chrome options for headless browser is enabled.
+    """
+    chrome_options = Options()
+    chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--no-sandbox")
+    chrome_options.add_argument("--disable-dev-shm-usage")
+    chrome_prefs = {}
+    chrome_options.experimental_options["prefs"] = chrome_prefs
+    chrome_prefs["profile.default_content_settings"] = {"images": 2}
+    return chrome_options
+
+driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()),options=set_chrome_options())
+scraper = TwitterScraper(driver, delay=int(os.environ["SCRAPER_DELAY"]))
 
 
 def run():
     while True:
         try:
-            source = scraper.fetch_page_source("tanteiwamou_")
+            source = scraper.fetch_page_source(os.environ["TWITTER_USER"])
             try:
-                data = scraper.get_one_tweet_preview(0, source)
+                data = scraper.get_one_tweet_preview(1, source)
             except:
                 traceback.print_exc()
                 continue
@@ -66,7 +81,7 @@ def run():
                 session.add(new_tweet)
                 session.commit()
 
-            time.sleep(10)
+            time.sleep(scraper.delay)
         except KeyboardInterrupt:
             break
 
