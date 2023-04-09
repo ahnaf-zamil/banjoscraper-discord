@@ -1,0 +1,7 @@
+selenium
+webdriver-manager
+bs4
+discord-webhook
+python-dateutil
+sqlalchemy
+python-dotenv
