@@ -1,3 +1,4 @@
 .env
 .idea
 data.db
+__pycache__
