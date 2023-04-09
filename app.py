@@ -25,6 +25,7 @@ db_engine = create_engine(os.environ["POSTGRES_URI"], echo=True)
 session = Session(db_engine)
 Base.metadata.create_all(db_engine)
 
+
 def set_chrome_options() -> Options:
     """Sets chrome options for Selenium.
     Chrome options for headless browser is enabled.
@@ -38,7 +39,10 @@ def set_chrome_options() -> Options:
     chrome_prefs["profile.default_content_settings"] = {"images": 2}
     return chrome_options
 
-driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()),options=set_chrome_options())
+
+driver = webdriver.Chrome(
+    service=ChromeService(ChromeDriverManager().install()), options=set_chrome_options()
+)
 scraper = TwitterScraper(driver, delay=int(os.environ["SCRAPER_DELAY"]))
 
 
@@ -52,18 +56,26 @@ def run():
                 traceback.print_exc()
                 continue
 
-            result = session.query(TweetSent).filter_by(id=int(data["tweet"]["id"])).first()
+            result = (
+                session.query(TweetSent).filter_by(id=int(data["tweet"]["id"])).first()
+            )
             print(
-                f"Latest tweet is {data['tweet']['id']}, record {'exists' if result else 'does not exist'} in database")
+                f"Latest tweet is {data['tweet']['id']}, record {'exists' if result else 'does not exist'} in database"
+            )
             if not result:
                 # This tweet has not been sent via webhook, send it and add record
                 hook = DiscordWebhook(url=WEBHOOK_URL)
-                embed = DiscordEmbed(title="Retweet" if data["retweet"] else "Link",
-                                     description=data["tweet"]["text"][:2000],
-                                     url=data["author"]["link"] + f"/status/{data['tweet']['id']}")
+                embed = DiscordEmbed(
+                    title="Retweet" if data["retweet"] else "Link",
+                    description=data["tweet"]["text"][:2000],
+                    url=data["author"]["link"] + f"/status/{data['tweet']['id']}",
+                )
                 embed.set_author(
-                    name=data["author"]["name"] + f"  (@{data['author']['link'].replace(TWITTER_PREFIX + '/', '')})",
-                    url=data["author"]["link"], icon_url=data["author"]["avatar"])
+                    name=data["author"]["name"]
+                    + f"  (@{data['author']['link'].replace(TWITTER_PREFIX + '/', '')})",
+                    url=data["author"]["link"],
+                    icon_url=data["author"]["avatar"],
+                )
                 embed.set_color(color=11393254)
                 embed.set_timestamp(data["tweet"]["time"])
                 embed.set_footer(text="Powered by BanjoScraper for Discord")
@@ -74,10 +86,12 @@ def run():
 
                 hook.add_embed(embed)
                 hook.execute()
-                new_tweet = TweetSent(id=int(data["tweet"]["id"]),
-                                      tweet_time=data["tweet"]["time"],
-                                      author_handle=data["author"]["handle"],
-                                      message_id=int(hook.id))
+                new_tweet = TweetSent(
+                    id=int(data["tweet"]["id"]),
+                    tweet_time=data["tweet"]["time"],
+                    author_handle=data["author"]["handle"],
+                    message_id=int(hook.id),
+                )
                 session.add(new_tweet)
                 session.commit()
 
