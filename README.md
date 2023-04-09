@@ -15,10 +15,6 @@ channel, those don't work now. So I took it upon myself to make a scraper-based 
 - SQLAlchemy (with SQlite)
 - DiscordWebhook
 
-## Screenshots
-
-![Screnshot #1](https://cdn.discordapp.com/attachments/795877321201549322/1094614279161909319/image.png)
-
 ## Usage
 
 Just install the requirements and create a `.env` file from the `.env.example`. Put your Webhook URL
@@ -31,6 +27,11 @@ python app.py
 ```
 
 Have fun!
+
+## Screenshots
+
+![Screnshot #1](https://cdn.discordapp.com/attachments/795877321201549322/1094614279161909319/image.png)
+![Screnshot #2](https://cdn.discordapp.net/attachments/795877321201549322/1094663127678861522/image.png)
 
 ## License
 
