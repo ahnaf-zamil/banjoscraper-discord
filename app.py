@@ -43,7 +43,7 @@ def set_chrome_options() -> Options:
 driver = webdriver.Chrome(
     service=ChromeService(ChromeDriverManager().install()), options=set_chrome_options()
 )
-scraper = TwitterScraper(driver, delay=int(os.environ["SCRAPER_DELAY"]))
+scraper = TwitterScraper(driver, delay=15)
 
 
 def run():
@@ -95,7 +95,7 @@ def run():
                 session.add(new_tweet)
                 session.commit()
 
-            time.sleep(scraper.delay)
+            time.sleep(int(os.environ["SCRAPER_DELAY"]))
         except KeyboardInterrupt:
             break
 
