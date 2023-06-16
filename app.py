@@ -78,7 +78,7 @@ def run():
                 )
                 embed.set_color(color=11393254)
                 embed.set_timestamp(data["tweet"]["time"])
-                embed.set_footer(text="Powered by BanjoScraper for Discord")
+                embed.set_footer(text="Powered by https://github.com/ahnaf-zamil/banjoscraper-discord/")
 
                 images = data["tweet"]["images"]
                 if len(images):
